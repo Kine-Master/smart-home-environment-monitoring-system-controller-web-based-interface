@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Home Monitor & Controller</title>
+    <link rel="stylesheet" href="style.css">
+    <script>
+        // Check if the current protocol/hostname is NOT http://localhost:3000
+        if (window.location.protocol !== 'http:' || window.location.hostname !== 'localhost' || window.location.port !== '3000') {
+            window.location.replace('http://localhost:3000');
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Smart Home Dashboard</h1>
+            <div class="theme-switch">
+                <input type="checkbox" id="nightModeToggle" class="checkbox">
+                <label for="nightModeToggle" class="toggle-label">
+                    <i class="fas fa-moon"></i>
+                    <i class="fas fa-sun"></i>
+                    <div class="ball"></div>
+                </label>
+            </div>
+        </div>
+
+        <div class="card sensor-data">
+            <h2>Current Readings</h2>
+            <p>Temperature: <span id="temp">--</span>°C</p>
+            <p>Light: <span id="ldr">--</span></p>
+        </div>
+
+        <div class="card control-panel">
+            <h2>Controls</h2>
+            <div class="control-group">
+                <h3>Appliance (Relay)</h3>
+                <button id="relayOn">ON</button>
+                <button id="relayOff">OFF</button>
+                <p>Status: <span id="relayStatus" class="status-indicator">OFF</span></p>
+            </div>
+
+            <div class="control-group">
+                <h3>Mood Light (RGB LED)</h3>
+                <input type="color" id="rgbColorPicker" value="#000000">
+                <button id="setRgb">Set Color</button>
+                <p>Current: <span id="rgbStatus" class="status-indicator" style="background-color: #000000; width: 20px; height: 20px; display: inline-block; vertical-align: middle; border: 1px solid #ccc;"></span></p>
+            </div>
+        </div>
+
+        <div class="card history-data">
+            <h2>Recent History</h2>
+            <table id="historyTable">
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Temp (°C)</th>
+                        <th>Light</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    </tbody>
+            </table>
+            <button id="loadMoreHistory">Load More</button>
+            <button id="clearHistory" class="clear-button">Clear All History</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</body>
+</html>

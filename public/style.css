@@ -1,0 +1,362 @@
+/* --- public/style.css --- */
+
+:root {
+  --primary: #6e48aa;
+  --secondary: #9d50bb;
+  --accent: #4776e6;
+  --dark: #121212;
+  --darker: #0a0a0a;
+  --light: #e0e0e0;
+  --success: #4caf50;
+  --warning: #ff9800;
+  --danger: #f44336;
+
+  /* Default (Night Mode) */
+  --bg-gradient-start: var(--darker);
+  --bg-gradient-end: var(--dark);
+  --container-bg: rgba(30, 30, 30, 0.8);
+  --container-border: rgba(255, 255, 255, 0.1);
+  --card-bg: rgba(40, 40, 40, 0.6);
+  --card-border: rgba(255, 255, 255, 0.08);
+  --text-color: var(--light);
+  --h1-color: white; /* H1 uses gradient so transparent */
+  --h2-color: var(--light);
+  --p-color: rgba(255, 255, 255, 0.9);
+  --table-header-bg: rgba(110, 72, 170, 0.2);
+  --table-border: rgba(255, 255, 255, 0.05);
+  --table-row-hover-bg: rgba(110, 72, 170, 0.1);
+  --button-load-more-bg: rgba(255, 255, 255, 0.1);
+  --button-load-more-border: rgba(255, 255, 255, 0.2);
+}
+
+/* Light Mode Variables */
+body.light-mode {
+  --bg-gradient-start: #e0e0e0;
+  --bg-gradient-end: #f4f7f6;
+  --container-bg: rgba(255, 255, 255, 0.9);
+  --container-border: rgba(0, 0, 0, 0.1);
+  --card-bg: rgba(240, 240, 240, 0.9);
+  --card-border: rgba(0, 0, 0, 0.1);
+  --text-color: var(--dark);
+  --h1-color: var(--primary); /* H1 uses gradient so transparent */
+  --h2-color: #333;
+  --p-color: #444;
+  --table-header-bg: rgba(200, 200, 200, 0.5);
+  --table-border: rgba(0, 0, 0, 0.1);
+  --table-row-hover-bg: rgba(220, 220, 220, 0.5);
+  --button-load-more-bg: #ccc;
+  --button-load-more-border: #bbb;
+}
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  color: var(--text-color);
+  display: grid;
+  place-items: center;
+  line-height: 1.6;
+  transition: background 0.5s ease, color 0.5s ease; /* Smooth transition for theme change */
+}
+
+.container {
+  background: var(--container-bg);
+  backdrop-filter: blur(10px);
+  padding: 2.5rem;
+  border-radius: 16px;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
+  width: min(90vw, 1200px);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 2rem;
+  border: 1px solid var(--container-border);
+  animation: fadeIn 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: background 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.header {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+h1 {
+  text-align: center;
+  margin: 0;
+  font-size: 2.5rem;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent; /* Makes the gradient visible */
+  text-shadow: 0 0 12px rgba(110, 72, 170, 0.3);
+}
+
+h2 {
+  color: var(--h2-color);
+  margin: 0;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  transition: color 0.5s ease, border-color 0.5s ease;
+}
+
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 1.75rem;
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  border-color: rgba(110, 72, 170, 0.3);
+}
+
+.sensor-data p {
+  font-size: 1.1rem;
+  margin-bottom: 0.75rem;
+  color: var(--p-color);
+  display: flex;
+  justify-content: space-between;
+  transition: color 0.5s ease;
+}
+
+.sensor-data span {
+  font-family: 'Fira Code', monospace;
+  color: var(--accent);
+}
+
+.control-panel .control-group {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+  transition: border-color 0.5s ease;
+}
+
+.control-panel button {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  margin-right: 0.75rem;
+  margin-bottom: 0.75rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.control-panel button::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(rgba(255, 255, 255, 0.2), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.control-panel button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.control-panel button:active {
+  transform: translateY(0);
+}
+
+#rgbColorPicker {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 8px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  transition: transform 0.3s, border-color 0.5s ease;
+}
+
+#rgbColorPicker:hover {
+  transform: scale(1.1);
+}
+
+.status-indicator {
+  font-weight: 600;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  background: rgba(76, 175, 80, 0.2);
+  color: var(--success);
+}
+
+#relayStatus.status-indicator[data-status="ON"] {
+  background: rgba(76, 175, 80, 0.2);
+  color: var(--success);
+}
+
+#relayStatus.status-indicator[data-status="OFF"] {
+  background: rgba(244, 67, 54, 0.2);
+  color: var(--danger);
+}
+
+.history-data {
+  grid-column: 1 / -1;
+}
+
+.history-data table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin-top: 1rem;
+}
+
+.history-data th, .history-data td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--table-border);
+  transition: border-color 0.5s ease;
+}
+
+.history-data th {
+  background: var(--table-header-bg);
+  color: white;
+  font-weight: 500;
+  position: sticky;
+  top: 0;
+  backdrop-filter: blur(10px);
+  transition: background 0.5s ease, color 0.5s ease;
+}
+
+.history-data tr:hover td {
+  background: var(--table-row-hover-bg);
+  transition: background 0.3s ease;
+}
+
+.history-data tr:last-child td {
+  border-bottom: none;
+}
+
+#loadMoreHistory {
+  margin-top: 1.5rem;
+  background: var(--button-load-more-bg);
+  color: var(--text-color);
+  border: 1px solid var(--button-load-more-border);
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease, background 0.5s ease, color 0.5s ease, border-color 0.5s ease;
+  display: block;
+  width: 100%;
+}
+
+#loadMoreHistory:hover {
+  background: rgba(255, 255, 255, 0.2); /* This might need a light-mode specific variable too */
+  transform: translateY(-2px);
+}
+
+/* Clear History Button Styling */
+.clear-button {
+    background: var(--danger) !important; /* Override general button style */
+    margin-top: 1rem;
+    display: block;
+    width: 100%;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    color: white;
+    transition: background-color 0.3s ease;
+}
+
+.clear-button:hover {
+    background: #c0392b !important;
+    transform: translateY(-2px);
+}
+
+
+@media (max-width: 768px) {
+  .container {
+    grid-template-columns: 1fr;
+    padding: 1.5rem;
+  }
+
+  h1 {
+    font-size: 2rem;
+  }
+}
+
+/* --- Theme Toggle Switch --- */
+.theme-switch {
+    display: flex;
+    align-items: center;
+    margin-left: 20px; /* Adjust spacing as needed */
+}
+
+.checkbox {
+    opacity: 0;
+    position: absolute;
+}
+
+.toggle-label {
+    background-color: #111;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-radius: 50px;
+    position: relative;
+    padding: 5px;
+    height: 26px; /* Adjust height for the ball */
+    width: 50px; /* Adjust width for the ball */
+    cursor: pointer;
+    transform: scale(1.5); /* Make the toggle a bit bigger */
+    transition: background-color 0.3s;
+}
+
+.toggle-label .ball {
+    background-color: #fff;
+    border-radius: 50%;
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    height: 22px;
+    width: 22px;
+    transition: transform 0.3s linear;
+}
+
+.checkbox:checked + .toggle-label .ball {
+    transform: translateX(24px);
+}
+
+.fa-moon {
+    color: #f1c40f; /* Yellow for moon */
+}
+
+.fa-sun {
+    color: #f39c12; /* Orange for sun */
+}
+
+/* Light mode specific toggle styles */
+body.light-mode .toggle-label {
+    background-color: #ccc;
+}
+body.light-mode .toggle-label .ball {
+    background-color: #fff;
+}

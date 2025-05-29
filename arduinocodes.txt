@@ -1,0 +1,168 @@
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+#include <ArduinoJson.h> // Make sure this library is installed!
+
+// --- Pin Definitions ---
+const int LM35_PIN = A2;     // LM35 Temperature Sensor analog pin
+const int LDR_PIN = A0;      // Photoresistor (LDR) analog pin
+
+const int RELAY_PIN = 7;     // Relay digital pin
+const int RGB_RED_PIN = 9;   // RGB LED Red pin (PWM)
+const int RGB_GREEN_PIN = 10; // RGB LED Green pin (PWM)
+const int RGB_BLUE_PIN = 11; // RGB LED Blue pin (PWM)
+
+// LCD I2C address, 16 columns and 2 rows
+// !!! CONFIRMED I2C ADDRESS: 0x27 !!!
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+
+// --- Global Variables ---
+long lastSensorReadTime = 0;
+const long interval = 1000; // Send data every 1 second
+int currentRGB[3] = {0, 0, 0}; // Store current RGB color (R, G, B)
+
+// --- CORRECTED setup() function ---
+void setup() {
+  Serial.begin(9600);
+  Serial.println("--- Smart Home Monitor Initializing ---");
+
+  // Initialize LCD
+  lcd.init();       // Initialize the I2C LCD
+  lcd.backlight();  // Turn on backlight
+
+  // The lcd.begin(cols, rows) function does NOT return a boolean.
+  // It simply configures the LCD's dimensions.
+  lcd.begin(16, 2); // Now called directly without 'if'
+
+  Serial.println("LCD initialized and configured."); // Adjusted success message
+  lcd.clear();
+  lcd.print("Smart Home Mon.");
+  lcd.setCursor(0, 1);
+  lcd.print("Loading...");
+
+  // Pin Modes
+  pinMode(RELAY_PIN, OUTPUT);
+  pinMode(RGB_RED_PIN, OUTPUT);
+  pinMode(RGB_GREEN_PIN, OUTPUT);
+  pinMode(RGB_BLUE_PIN, OUTPUT);
+
+  // Initial states
+  digitalWrite(RELAY_PIN, 150); // Ensure relay is ON initially
+  delay(500); // Display Relay for 0.5 seconds
+  digitalWrite(RELAY_PIN, LOW); // Ensure relay is OFF initially
+
+  // --- RGB LED Initialization Sequence ---
+  // Turn Red on, delay, then off
+  analogWrite(RGB_RED_PIN, 150);   // Red HIGH (full brightness)
+  analogWrite(RGB_GREEN_PIN, 0);   // Green OFF
+  analogWrite(RGB_BLUE_PIN, 0);    // Blue OFF
+  Serial.println("RGB: Red ON");
+  delay(500); // Display Red for 0.5 seconds
+  analogWrite(RGB_RED_PIN, 0);     // Red LOW (off)
+
+  // Turn Green on, delay, then off
+  analogWrite(RGB_RED_PIN, 0);     // Red OFF
+  analogWrite(RGB_GREEN_PIN, 150); // Green HIGH (full brightness)
+  analogWrite(RGB_BLUE_PIN, 0);    // Blue OFF
+  Serial.println("RGB: Green ON");
+  delay(500); // Display Green for 0.5 seconds
+  analogWrite(RGB_GREEN_PIN, 0);   // Green LOW (off)
+
+  // Turn Blue on, delay, then off
+  analogWrite(RGB_RED_PIN, 0);     // Red OFF
+  analogWrite(RGB_GREEN_PIN, 0);   // Green OFF
+  analogWrite(RGB_BLUE_PIN, 150);  // Blue HIGH (full brightness)
+  Serial.println("RGB: Blue ON");
+  delay(500); // Display Blue for 0.5 seconds
+  analogWrite(RGB_BLUE_PIN, 0);    // Blue LOW (off)
+
+  Serial.println("RGB initialization sequence complete.");
+  // --- End RGB LED Initialization Sequence ---
+
+  delay(2000); // Give time for LCD message
+}
+
+void loop() {
+  unsigned long currentMillis = millis();
+
+  // --- Sensor Reading and Serial Output ---
+  if (currentMillis - lastSensorReadTime >= interval) {
+    lastSensorReadTime = currentMillis;
+
+    // Read LM35 Temperature
+    int lm35Analog = analogRead(LM35_PIN);
+    float temperatureC = (lm35Analog * (5.0 / 1024.0)) * 100.0; // Convert to Celsius
+
+    // Read LDR Light
+    int ldrValue = analogRead(LDR_PIN);
+
+    // Create JSON object (excluding sound)
+    StaticJsonDocument<200> doc;
+    doc["temp"] = temperatureC;
+    doc["ldr"] = ldrValue;
+    // doc["sound"] = soundValue; // Sound sensor excluded
+
+    // Serialize JSON to string and send over Serial
+    String jsonString;
+    serializeJson(doc, jsonString);
+    Serial.println(jsonString);
+
+    // --- LCD Display ---
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Temp: ");
+    lcd.print(temperatureC, 1); // 1 decimal place
+    lcd.print((char)223); // Degree symbol
+    lcd.print("C");
+
+    lcd.setCursor(0, 1);
+    lcd.print("Light: ");
+    lcd.print(ldrValue);
+  }
+
+  // --- Handle Incoming Serial Commands from Node.js ---
+  if (Serial.available()) {
+    String command = Serial.readStringUntil('\n');
+    command.trim(); // Remove any leading/trailing whitespace
+
+    // Relay control
+    if (command == "RELAY_ON") {
+      digitalWrite(RELAY_PIN, HIGH);
+      Serial.println("RELAY_STATUS:ON"); // Send status back
+    } else if (command == "RELAY_OFF") {
+      digitalWrite(RELAY_PIN, LOW);
+      Serial.println("RELAY_STATUS:OFF"); // Send status back
+    }
+
+    // RGB LED control
+    // Format: RGB_R,G,B (e.g., RGB_255,0,0)
+    if (command.startsWith("RGB_")) {
+      String rgbString = command.substring(4); // Get "R,G,B" part
+      int firstComma = rgbString.indexOf(',');
+      int secondComma = rgbString.indexOf(',', firstComma + 1);
+
+      if (firstComma != -1 && secondComma != -1) {
+        int r = rgbString.substring(0, firstComma).toInt();
+        int g = rgbString.substring(firstComma + 1, secondComma).toInt();
+        int b = rgbString.substring(secondComma + 1).toInt();
+
+        // Ensure values are within 0-255 range
+        r = constrain(r, 0, 255);
+        g = constrain(g, 0, 255);
+        b = constrain(b, 0, 255);
+
+        analogWrite(RGB_RED_PIN, r);
+        analogWrite(RGB_GREEN_PIN, g);
+        analogWrite(RGB_BLUE_PIN, b);
+
+        currentRGB[0] = r; // Update stored current color
+        currentRGB[1] = g;
+        currentRGB[2] = b;
+
+        Serial.print("RGB_STATUS:"); // Send status back
+        Serial.print(r); Serial.print(",");
+        Serial.print(g); Serial.print(",");
+        Serial.println(b);
+      }
+    }
+  }
+}

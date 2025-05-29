@@ -1,0 +1,9 @@
+CREATE DATABASE IF NOT EXISTS smart_home_db;
+USE smart_home_db;
+
+CREATE TABLE IF NOT EXISTS sensor_readings (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    temperature FLOAT,
+    ldr_value INT
+);
